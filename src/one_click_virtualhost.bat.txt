@@ -1,0 +1,232 @@
+Echo off
+
+Rem One Click VirtualHost v1.0.0
+Rem 
+Rem Copyright 2012, Kaoru Ishikura
+Rem Dual licensed under the MIT or GPL Version 2 licenses.
+
+Rem Project environment variables.
+Rem ##############################################
+Set XAMPP_HOME=C:\local\xampp
+Set DOCUMENT_ROOT_PATH=C:\home\username
+Set WEB_ROOT_PATH=src
+Set HOSTS_FILE_PATH=C:\WINDOWS\system32\drivers\etc\hosts
+Set TOP_LEVEL_DOMAIN=ocv
+Set APACHE_SVC_NAME=apache2.2
+Rem ##############################################
+
+Rem SSL environment variables.
+Rem ##############################################
+Set OPENSSL_CONF=%XAMPP_HOME%\php\extras\openssl\openssl.cnf
+Set APACHE_CONF_PATH=%XAMPP_HOME%\apache\conf
+Set OPENSSL_PATH=%XAMPP_HOME%\apache\bin\openssl
+Set TMP_PATH=%XAMPP_HOME%\tmp
+Set SSL_CERTIFICATION_DAYS=3650
+Set SSL_COUNTRY_NAME=JP
+Set SSL_STATE_OR_PROVINCE_NAME=Osaka
+Set SSL_LOCALITY_NAME=Osaka
+Set SSL_ORGANIZATION_NAME=kaorinstar.com
+Set SSL_ORGANIZATIONAL_UNIT_NAME=
+Set SSL_EMAIL_ADDRESS=noreply@kaorinstar.com
+Rem ##############################################
+
+Rem Check an argument.
+Set PROJNAME=%1
+If Not "%1" == "" Goto skip_input1
+
+:input_project_name
+
+Rem Input the project name.
+Echo;
+Echo プロジェクト名を入力してください。
+Echo (※プロジェクト名は半角英数字で入力してください。スペースと全角文字を入力しないでください)
+
+Set /p PROJNAME=プロジェクト名:
+
+:skip_input1
+Set PROJ_ROOT_PATH=%DOCUMENT_ROOT_PATH%\%PROJNAME%
+
+If Defined PROJNAME Set PROJNAME=%PROJNAME:"=%
+If "%PROJNAME%" == ""  Goto error1
+If Exist "%PROJ_ROOT_PATH%" Goto error2
+
+:ret_overwrite
+
+Rem Input the web root directory path.
+Echo;
+Echo 現在の公開ディレクトリのパスは"%WEB_ROOT_PATH%"です。
+Set /p CHECK_WEB_ROOT=公開ディレクトリのパスを変更しますか。（y/n）：
+If Defined CHECK_WEB_ROOT Set CHECK_WEB_ROOT=%CHECK_WEB_ROOT:"=%
+If /i Not "%CHECK_WEB_ROOT%" == "y" Goto skip_input2
+
+Echo;
+Set /p WEB_ROOT_PATH=公開ディレクトリのパスを入力してください。：
+
+:skip_input2
+
+Rem Add the project name to the hosts file.
+If Not Exist "%HOSTS_FILE_PATH%.bak" Copy %HOSTS_FILE_PATH% %HOSTS_FILE_PATH%.bak
+Set MY_DOMAIN=%PROJNAME%.%TOP_LEVEL_DOMAIN%
+Echo;>>%HOSTS_FILE_PATH%
+Echo 127.0.0.1     %MY_DOMAIN%>>%HOSTS_FILE_PATH%
+
+Rem Add the project's virtual host config to the httpd-vhosts.conf file.
+Set VH_PATH=%XAMPP_HOME%\apache\conf\extra\httpd-vhosts.conf
+If "%WEB_ROOT_PATH%" == "" (
+    Set WEB_ROOT_FULL_PATH=%PROJ_ROOT_PATH:\=/%
+) Else (
+    Set WEB_ROOT_FULL_PATH=%PROJ_ROOT_PATH:\=/%/%WEB_ROOT_PATH:\=/%
+)
+Set WEB_ROOT_FULL_PATH=%WEB_ROOT_FULL_PATH://=/%
+Echo;>>%VH_PATH%
+Echo #>>%VH_PATH%
+Echo # Begin %MY_DOMAIN% config.>>%VH_PATH%
+Echo #>>%VH_PATH%
+Echo ^<VirtualHost *:80^>>>%VH_PATH%
+Echo     DocumentRoot "%WEB_ROOT_FULL_PATH%">>%VH_PATH%
+Echo     ServerName %MY_DOMAIN%>>%VH_PATH%
+Echo     ErrorLog "logs/%PROJNAME%-error.log">>%VH_PATH%
+Echo     CustomLog "logs/%PROJNAME%-access.log" combined>>%VH_PATH%
+Echo     ^<Directory "%WEB_ROOT_FULL_PATH%"^>>>%VH_PATH%
+Echo         Options FollowSymLinks Includes ExecCGI>>%VH_PATH%
+Echo         AllowOverride All>>%VH_PATH%
+Echo         Order deny,allow>>%VH_PATH%
+Echo         Deny from all>>%VH_PATH%
+Echo         Allow from localhost 127.0.0.1>>%VH_PATH%
+Echo     ^</Directory^>>>%VH_PATH%
+Echo ^</VirtualHost^>>>%VH_PATH%
+Call :sub_gen_ssl
+Echo #>>%VH_PATH%
+Echo # End %MY_DOMAIN% config.>>%VH_PATH%
+Echo #>>%VH_PATH%
+
+Rem Create a repository for Git.
+Echo;
+Set /p CHECK_GIT_INIT=Gitのリポジトリを作成しますか。（y/n）：
+If Defined CHECK_GIT_INIT Set CHECK_GIT_INIT=%CHECK_GIT_INIT:"=%
+If /i Not "%CHECK_GIT_INIT%" == "y" Goto skip_git
+
+If Not Exist "%PROJ_ROOT_PATH%" Mkdir "%PROJ_ROOT_PATH%"
+Cd /d "%PROJ_ROOT_PATH%"
+Git init
+Cd /d "%~dp0"
+
+:skip_git
+
+Rem Make the web root directory.
+If Not Exist "%WEB_ROOT_FULL_PATH:/=\%" Mkdir "%WEB_ROOT_FULL_PATH:/=\%"
+
+Rem Restart Apache.
+Sc Query %APACHE_SVC_NAME% | Findstr /ic:"FAILED 1060:">NUL
+If ERRORLEVEL 1 (
+    Echo;
+    Echo Apacheを再起動しています...
+    %XAMPP_HOME%\apache\bin\httpd.exe -k restart
+) Else (
+    Echo;
+    Echo プロジェクトを有効にするには、Apacheを再起動してください。
+)
+
+Echo;
+Echo プロジェクトの作成が完了しました。
+Pause
+
+Set OPENSSL_CONF=
+
+Goto :EOF
+
+Rem Generate the SSL cert.
+:sub_gen_ssl
+Echo;
+Set /p CHECK_WEB_ROOT=SSLサーバ証明書を作成しますか。（y/n）：
+If Defined CHECK_WEB_ROOT Set CHECK_WEB_ROOT=%CHECK_WEB_ROOT:"=%
+If /i Not "%CHECK_WEB_ROOT%" == "y" Goto :EOF
+
+Rem Set certificate subjects.
+Set SSL_SUBJECT=
+If Not "%SSL_COUNTRY_NAME%" == "" (
+    Set SSL_SUBJECT=%SSL_SUBJECT%/C=%SSL_COUNTRY_NAME%
+)
+If Not "%SSL_STATE_OR_PROVINCE_NAME%" == "" (
+    Set SSL_SUBJECT=%SSL_SUBJECT%/ST=%SSL_STATE_OR_PROVINCE_NAME%
+)
+If Not "%SSL_LOCALITY_NAME%" == "" (
+    Set SSL_SUBJECT=%SSL_SUBJECT%/L=%SSL_LOCALITY_NAME%
+)
+If Not "%SSL_ORGANIZATION_NAME%" == "" (
+    Set SSL_SUBJECT=%SSL_SUBJECT%/O=%SSL_ORGANIZATION_NAME%
+)
+If Not "%SSL_ORGANIZATIONAL_UNIT_NAME%" == "" (
+    Set SSL_SUBJECT=%SSL_SUBJECT%/OU=%SSL_ORGANIZATIONAL_UNIT_NAME%
+)
+If Not "%MY_DOMAIN%" == "" (
+    Set SSL_SUBJECT=%SSL_SUBJECT%/CN=%MY_DOMAIN%
+)
+If Not "%SSL_EMAIL_ADDRESS%" == "" (
+    Set SSL_SUBJECT=%SSL_SUBJECT%/emailAddress=%SSL_EMAIL_ADDRESS%
+)
+If Not "%SSL_SUBJECT%" == "" Set SSL_SUBJECT=-subj %SSL_SUBJECT: =_%
+
+Rem Generate the OpenSSL key and cert.
+%OPENSSL_PATH% genrsa -rand %XAMPP_HOME%\xampp-control.exe ^
+-out %TMP_PATH%\%PROJNAME%-server.key 1024
+%OPENSSL_PATH% req -new -x509 -days %SSL_CERTIFICATION_DAYS% %SSL_SUBJECT% ^
+-rand %XAMPP_HOME%\xampp-control.exe -config %OPENSSL_CONF% ^
+-key %TMP_PATH%\%PROJNAME%-server.key -out %TMP_PATH%\%PROJNAME%-server.crt
+
+Rem Move the OpenSSL key and cert to Apache config directory.
+If Not Exist %APACHE_CONF_PATH%\ssl.crt Mkdir %APACHE_CONF_PATH%\ssl.crt
+If Not Exist %APACHE_CONF_PATH%\ssl.key Mkdir %APACHE_CONF_PATH%\ssl.key
+Move /y %TMP_PATH%\%PROJNAME%-server.crt %APACHE_CONF_PATH%\ssl.crt
+Move /y %TMP_PATH%\%PROJNAME%-server.key %APACHE_CONF_PATH%\ssl.key
+
+Rem Add the project's virtual host ssl config to the httpd-vhosts.conf file.
+Set APACHE_CONF_PATH2=%APACHE_CONF_PATH:\=/%
+Echo ^<IfModule ssl_module^>>>%VH_PATH%
+Echo     ^<VirtualHost *:443^>>>%VH_PATH%
+Echo         DocumentRoot "%WEB_ROOT_FULL_PATH%">>%VH_PATH%
+Echo         ServerName %MY_DOMAIN%:443>>%VH_PATH%
+Echo         ErrorLog "logs/%PROJNAME%-ssl-error.log">>%VH_PATH%
+Echo         CustomLog "logs/%PROJNAME%-ssl-access.log" combined>>%VH_PATH%
+Echo         SSLEngine on>>%VH_PATH%
+Echo         SSLProtocol all -SSLv2>>%VH_PATH%
+Echo         SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL>>%VH_PATH%
+Echo         SSLCertificateFile "%APACHE_CONF_PATH2%/ssl.crt/%PROJNAME%-server.crt">>%VH_PATH%
+Echo         SSLCertificateKeyFile "%APACHE_CONF_PATH2%/ssl.key/%PROJNAME%-server.key">>%VH_PATH%
+Echo         BrowserMatch "MSIE [2-6]" \>>%VH_PATH%
+Echo             nokeepalive ssl-unclean-shutdown \>>%VH_PATH%
+Echo             downgrade-1.0 force-response-1.0>>%VH_PATH%
+Echo         # MSIE 7 and newer should be able to use keepalive>>%VH_PATH%
+Echo         BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown>>%VH_PATH%
+Echo         ^<Directory "%WEB_ROOT_FULL_PATH%"^>>>%VH_PATH%
+Echo             SSLRequireSSL>>%VH_PATH%
+Echo             Options FollowSymLinks Includes ExecCGI>>%VH_PATH%
+Echo             AllowOverride All>>%VH_PATH%
+Echo             Order deny,allow>>%VH_PATH%
+Echo             Deny from all>>%VH_PATH%
+Echo             Allow from localhost 127.0.0.1>>%VH_PATH%
+Echo             ^<FilesMatch "\.^(cgi^|shtml^|pl^|asp^|php^)$"^>>>%VH_PATH%
+Echo                 SSLOptions +StdEnvVars>>%VH_PATH%
+Echo             ^</FilesMatch^>>>%VH_PATH%
+Echo         ^</Directory^>>>%VH_PATH%
+Echo     ^</VirtualHost^>>>%VH_PATH%
+Echo ^</IfModule^>>>%VH_PATH%
+
+Goto :EOF
+
+:error1
+Echo;
+Echo Error:プロジェクト名が入力されていません。
+Set /p CHECK_RE_ENTER=プロジェクト名を再入力しますか。（y/n）：
+If Defined CHECK_RE_ENTER Set CHECK_RE_ENTER=%CHECK_RE_ENTER:"=%
+If /i "%CHECK_RE_ENTER%" == "y" (Goto input_project_name) Else Goto :EOF
+
+:error2
+Echo;
+Echo Error:指定のプロジェクト名は既に存在しています。
+Set /p CHECK_RE_ENTER=プロジェクトを上書きしますか。（y/n）：
+If Defined CHECK_RE_ENTER Set CHECK_RE_ENTER=%CHECK_RE_ENTER:"=%
+If /i "%CHECK_RE_ENTER%" == "y" Goto ret_overwrite
+Set /p CHECK_RE_ENTER=プロジェクト名を再入力しますか。（y/n）：
+If Defined CHECK_RE_ENTER Set CHECK_RE_ENTER=%CHECK_RE_ENTER:"=%
+If /i "%CHECK_RE_ENTER%" == "y" (Goto input_project_name) Else Goto :EOF
