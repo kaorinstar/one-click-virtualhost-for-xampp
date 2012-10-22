@@ -1,6 +1,6 @@
 Echo off
 
-Rem One Click VirtualHost v1.0.0
+Rem One Click VirtualHost v1.0.1
 Rem 
 Rem Copyright 2012, Kaoru Ishikura
 Rem Dual licensed under the MIT or GPL Version 2 licenses.
@@ -54,13 +54,13 @@ If Exist "%PROJ_ROOT_PATH%" Goto error2
 
 Rem Input the web root directory path.
 Echo;
-Echo 現在の公開ディレクトリのパスは"%WEB_ROOT_PATH%"です。
-Set /p CHECK_WEB_ROOT=公開ディレクトリのパスを変更しますか。（y/n）：
+Echo 現在の公開フォルダーのパスは"%WEB_ROOT_PATH%"です。
+Set /p CHECK_WEB_ROOT=公開フォルダーのパスを変更しますか。（y/n）：
 If Defined CHECK_WEB_ROOT Set CHECK_WEB_ROOT=%CHECK_WEB_ROOT:"=%
 If /i Not "%CHECK_WEB_ROOT%" == "y" Goto skip_input2
 
 Echo;
-Set /p WEB_ROOT_PATH=公開ディレクトリのパスを入力してください。：
+Set /p WEB_ROOT_PATH=公開フォルダーのパスを入力してください。：
 
 :skip_input2
 
