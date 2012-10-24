@@ -12,11 +12,13 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
 6. ライセンス
 
 ## 1. 注意
-このプログラムは、Windowsの「hosts」ファイル及び、  
-Apacheの「httpd-vhosts.conf」ファイルを変更します。
+このプログラムは、以下の動作をします。
 
-また、指定したパスにプロジェクト名のフォルダー及び、  
-関連するフォルダーまたは、ファイルを作成します。
+1. Windowsの「hosts」ファイル及び、  
+   Apacheの「httpd-vhosts.conf」ファイルを変更します。
+2. プロジェクトに関連するフォルダーまたは、ファイルを作成します。
+3. MySQL環境変数を設定した場合は、データベースを作成します。
+4. Git環境変数を設定した場合は、Gitのリポジトリーを作成します。
 
 ## 2. インストール
 1. ダウンロードします。
@@ -26,8 +28,8 @@ Apacheの「httpd-vhosts.conf」ファイルを変更します。
 4. ファイル名の.txt部分を削除します。(one_click_virtualhost.bat)
 
 ## 3. アンインストール
-「one_click_virtualhost.bat」ファイルを削除します。  
-※各プロジェクトを削除する方法は、「5. 使い方>・プロジェクトを削除する」を参照してください。
+1. 「one_click_virtualhost.bat」ファイルを削除します。  
+   ※各プロジェクトを削除する方法は、「5. 使い方 > ・プロジェクトを削除する」を参照してください。
 
 ## 4. 設定
 ###プロジェクト環境変数
@@ -74,7 +76,7 @@ Apacheの「httpd-vhosts.conf」ファイルを変更します。
    例)%XAMPP_HOME%\tmp
    
    * SSL_CERTIFICATION_DAYS  
-   SSLサーバ証明書の有効期限を指定します。（単位：日）  
+   SSLサーバー証明書の有効期限を指定します。（単位：日）  
    例)3650
    
    * SSL_COUNTRY_NAME  
@@ -101,23 +103,47 @@ Apacheの「httpd-vhosts.conf」ファイルを変更します。
    メールアドレスを指定します。  
    例)noreply@kaorinstar.com
 
+###MySQL環境変数
+   
+   * MYSQL_MYSQLADMIN_PATH  
+   mysqladminの実行ファイルのパスを指定します。  
+   例)%XAMPP_HOME%\mysql\bin\mysqladmin
+   
+   * MYSQL_ROOT_PASSWORD  
+   rootのパスワードを指定します。  
+   例)password
+   
+   * MYSQL_DBNAME_PREFIX  
+   データベースの名前の接頭辞を指定します。  
+   例)my_
+   
+   * MYSQL_DBNAME_SUFFIX  
+   データベースの名前の接尾辞を指定します。  
+   例)_db
+
+###Git環境変数
+   
+   * GIT_PATH  
+   gitの実行ファイルのパスを指定します。  
+   例)C:\Program Files\Git\bin\git
+
 ## 5. 使い方
 ###新規プロジェクトの作成
    1. 「one_click_virtualhost.bat」ファイルをダブルクリックして実行します。  
       (コマンドプロンプトが起動します)
 
    2. プロジェクト名を尋ねられるので、お好きなプロジェクト名を入力します。  
-      ※英数字で入力します。  
-      ※スペースは入力しないでください。  
+      ※半角英数字（a～z、0～9）とハイフン（-）で入力してください。  
       ※プロジェクト名がドメインになります。
 
    3. 公開フォルダーのパスを変更するか尋ねられるので、  
       変更する場合は「y」、変更しない場合は「n」を入力して、  
       エンターキーを押します。
 
-      デフォルトのパスは、  
-      `%DOCUMENT_ROOT_PATH%\プロジェクト名\%WEB_ROOT_PATH%`  
-      になります。
+      公開フォルダーのパス：  
+```
+%DOCUMENT_ROOT_PATH%\プロジェクト名\%WEB_ROOT_PATH%
+```
 
      「y」と入力した場合はプロジェクト名以下のパスを入力します。  
       ※開始と終了には、区切り文字( \ )は必要ありません。  
@@ -127,9 +153,13 @@ Apacheの「httpd-vhosts.conf」ファイルを変更します。
       設定する場合は「y」、設定しない場合は「n」を入力して、  
       エンターキーを押します。
 
-   5. Gitを設定するか尋ねられるので、  
-      設定する場合は「y」、設定しない場合は「n」を入力して、  
+   5. MySQLのデータベースを作成するか尋ねられるので、  
+      作成する場合は「y」、作成しない場合は「n」を入力して、  
       エンターキーを押します。
+
+   5. Gitのリポジトリーを作成するか尋ねられるので、  
+      作成する場合は「y」、作成しない場合は「n」を入力して、  
+      エンターキーを押します。  
       ※Gitを予めインストールしておく必要があります。
 
    6. Apacheを再起動します。  
@@ -143,36 +173,46 @@ Apacheの「httpd-vhosts.conf」ファイルを変更します。
    1. Apacheの「httpd-vhosts.conf」ファイルをメモ帳か、  
       テキストエディターで開きます。
 
-      ・「httpd-vhosts.conf」ファイルのパス  
-        %XAMPP_HOME%\apache\conf\extra\httpd-vhosts.conf
+      「httpd-vhosts.conf」ファイルのパス：  
+```
+%XAMPP_HOME%\apache\conf\extra\httpd-vhosts.conf
+```
 
    2. 削除するプロジェクト名のコメントを探します。
 
    3. プロジェクトの設定の開始のコメントから、  
       終了のコメントまでを削除します。
 
-      ・開始のコメント  
-      `#`  
-      `# Begin プロジェクト名 config.`  
-      `#`
+      開始のコメント：  
+```
+#  
+# Begin プロジェクト名 config.  
+#
+```
 
-      ・終了のコメント  
-      `#`  
-      `# End プロジェクト名 config.`  
-      `#`
+      終了のコメント：  
+```
+#  
+# End プロジェクト名 config.  
+#
+```
 
    4. ファイルを保存して閉じます。
 
    5. Windowsの「hosts」ファイルをメモ帳か、  
       テキストエディターで開きます。
 
-      ・「hosts」ファイルのパス  
-        C:\Windows\System32\drivers\etc\hosts
+      「hosts」ファイルのパス：  
+```
+C:\Windows\System32\drivers\etc\hosts
+```
 
    6. 削除するプロジェクトのドメインが記述されている行を削除します。
 
-      ・プロジェクトのドメインが記述されている行  
-      `127.0.0.1 プロジェクト名.ocv`
+      プロジェクトのドメインが記述されている行：  
+```
+127.0.0.1 プロジェクト名.ocv
+```
 
    7. ファイルを保存して閉じます。
 
@@ -180,10 +220,19 @@ Apacheの「httpd-vhosts.conf」ファイルを変更します。
 
    9. プロジェクト名のフォルダーを削除します。
 
-      ・「プロジェクト名」フォルダーのパス  
-        %DOCUMENT_ROOT_PATH%\プロジェクト名
+      「プロジェクト名」フォルダーのパス：  
+```
+%DOCUMENT_ROOT_PATH%\プロジェクト名
+```
 
-   10. 完了です。
+   10. phpMyAdminにアクセスして、プロジェクトのデータベースを削除します。
+
+      「phpMyAdmin」のデフォルトのURL：  
+```
+http://localhost/phpmyadmin/
+```
+
+   11. 完了です。
 
 ## 6. ライセンス
 Copyright &copy; 2012 Kaoru Ishikura.  

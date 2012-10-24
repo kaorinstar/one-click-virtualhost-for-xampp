@@ -1,6 +1,6 @@
 Echo off
 
-Rem One Click VirtualHost v1.0.1
+Rem One Click VirtualHost v1.1.0
 Rem 
 Rem Copyright 2012, Kaoru Ishikura
 Rem Dual licensed under the MIT or GPL Version 2 licenses.
@@ -10,7 +10,7 @@ Rem ##############################################
 Set XAMPP_HOME=C:\local\xampp
 Set DOCUMENT_ROOT_PATH=C:\home\username
 Set WEB_ROOT_PATH=src
-Set HOSTS_FILE_PATH=C:\WINDOWS\system32\drivers\etc\hosts
+Set HOSTS_FILE_PATH=C:\Windows\system32\drivers\etc\hosts
 Set TOP_LEVEL_DOMAIN=ocv
 Set APACHE_SVC_NAME=apache2.2
 Rem ##############################################
@@ -30,20 +30,33 @@ Set SSL_ORGANIZATIONAL_UNIT_NAME=
 Set SSL_EMAIL_ADDRESS=noreply@kaorinstar.com
 Rem ##############################################
 
+Rem MySQL environment variables.
+Rem ##############################################
+Set MYSQL_MYSQLADMIN_PATH=
+Set MYSQL_ROOT_PASSWORD=
+Set MYSQL_DBNAME_PREFIX=
+Set MYSQL_DBNAME_SUFFIX=_db
+Rem ##############################################
+
+Rem Git environment variables.
+Rem ##############################################
+Set GIT_PATH=
+Rem ##############################################
+
 Rem Check an argument.
 Set PROJNAME=%1
 If Not "%1" == "" Goto skip_input1
 
 :input_project_name
-
 Rem Input the project name.
 Echo;
 Echo プロジェクト名を入力してください。
-Echo (※プロジェクト名は半角英数字で入力してください。スペースと全角文字を入力しないでください)
+Echo (※プロジェクト名は半角英数字（a～z、0～9）とハイフン（-）で入力してください)
 
-Set /p PROJNAME=プロジェクト名:
+Set /p PROJNAME=プロジェクト名：
 
 :skip_input1
+
 Set PROJ_ROOT_PATH=%DOCUMENT_ROOT_PATH%\%PROJNAME%
 
 If Defined PROJNAME Set PROJNAME=%PROJNAME:"=%
@@ -51,8 +64,7 @@ If "%PROJNAME%" == ""  Goto error1
 If Exist "%PROJ_ROOT_PATH%" Goto error2
 
 :ret_overwrite
-
-Rem Input the web root directory path.
+Rem Input the web root folder path.
 Echo;
 Echo 現在の公開フォルダーのパスは"%WEB_ROOT_PATH%"です。
 Set /p CHECK_WEB_ROOT=公開フォルダーのパスを変更しますか。（y/n）：
@@ -65,7 +77,7 @@ Set /p WEB_ROOT_PATH=公開フォルダーのパスを入力してください。：
 :skip_input2
 
 Rem Add the project name to the hosts file.
-If Not Exist "%HOSTS_FILE_PATH%.bak" Copy %HOSTS_FILE_PATH% %HOSTS_FILE_PATH%.bak
+If Not Exist "%HOSTS_FILE_PATH%.bak" Copy "%HOSTS_FILE_PATH%" "%HOSTS_FILE_PATH%.bak"
 Set MY_DOMAIN=%PROJNAME%.%TOP_LEVEL_DOMAIN%
 Echo;>>%HOSTS_FILE_PATH%
 Echo 127.0.0.1     %MY_DOMAIN%>>%HOSTS_FILE_PATH%
@@ -100,28 +112,41 @@ Echo #>>%VH_PATH%
 Echo # End %MY_DOMAIN% config.>>%VH_PATH%
 Echo #>>%VH_PATH%
 
-Rem Create a repository for Git.
+Rem Create a database for MySQL.
+If "%MYSQL_MYSQLADMIN_PATH%" == "" Goto skip_mysql
 Echo;
-Set /p CHECK_GIT_INIT=Gitのリポジトリを作成しますか。（y/n）：
+Set /p CHECK_MYSQL_CREATE_DB=MySQLのデータベースを作成しますか。（y/n）：
+If Defined CHECK_MYSQL_CREATE_DB Set CHECK_MYSQL_CREATE_DB=%CHECK_MYSQL_CREATE_DB:"=%
+If /i Not "%CHECK_MYSQL_CREATE_DB%" == "y" Goto skip_mysql
+
+"%MYSQL_MYSQLADMIN_PATH%" -uroot -p%MYSQL_ROOT_PASSWORD% ^
+create %MYSQL_DBNAME_PREFIX%%PROJNAME:-=_%%MYSQL_DBNAME_SUFFIX%
+
+:skip_mysql
+
+Rem Create a repository for Git.
+If "%GIT_PATH%" == "" Goto skip_git
+Echo;
+Set /p CHECK_GIT_INIT=Gitのリポジトリーを作成しますか。（y/n）：
 If Defined CHECK_GIT_INIT Set CHECK_GIT_INIT=%CHECK_GIT_INIT:"=%
 If /i Not "%CHECK_GIT_INIT%" == "y" Goto skip_git
 
 If Not Exist "%PROJ_ROOT_PATH%" Mkdir "%PROJ_ROOT_PATH%"
 Cd /d "%PROJ_ROOT_PATH%"
-Git init
+"%GIT_PATH%" init
 Cd /d "%~dp0"
 
 :skip_git
 
-Rem Make the web root directory.
+Rem Make the web root folder.
 If Not Exist "%WEB_ROOT_FULL_PATH:/=\%" Mkdir "%WEB_ROOT_FULL_PATH:/=\%"
 
 Rem Restart Apache.
-Sc Query %APACHE_SVC_NAME% | Findstr /ic:"FAILED 1060:">NUL
+Sc Query "%APACHE_SVC_NAME%" | Findstr /ic:"FAILED 1060:">NUL
 If ERRORLEVEL 1 (
     Echo;
     Echo Apacheを再起動しています...
-    %XAMPP_HOME%\apache\bin\httpd.exe -k restart
+    "%XAMPP_HOME%\apache\bin\httpd.exe" -k restart
 ) Else (
     Echo;
     Echo プロジェクトを有効にするには、Apacheを再起動してください。
@@ -138,9 +163,9 @@ Goto :EOF
 Rem Generate the SSL cert.
 :sub_gen_ssl
 Echo;
-Set /p CHECK_WEB_ROOT=SSLサーバ証明書を作成しますか。（y/n）：
-If Defined CHECK_WEB_ROOT Set CHECK_WEB_ROOT=%CHECK_WEB_ROOT:"=%
-If /i Not "%CHECK_WEB_ROOT%" == "y" Goto :EOF
+Set /p CHECK_SSL=SSLサーバー証明書を作成しますか。（y/n）：
+If Defined CHECK_SSL Set CHECK_SSL=%CHECK_SSL:"=%
+If /i Not "%CHECK_SSL%" == "y" Goto :EOF
 
 Rem Set certificate subjects.
 Set SSL_SUBJECT=
@@ -168,17 +193,17 @@ If Not "%SSL_EMAIL_ADDRESS%" == "" (
 If Not "%SSL_SUBJECT%" == "" Set SSL_SUBJECT=-subj %SSL_SUBJECT: =_%
 
 Rem Generate the OpenSSL key and cert.
-%OPENSSL_PATH% genrsa -rand %XAMPP_HOME%\xampp-control.exe ^
--out %TMP_PATH%\%PROJNAME%-server.key 1024
-%OPENSSL_PATH% req -new -x509 -days %SSL_CERTIFICATION_DAYS% %SSL_SUBJECT% ^
--rand %XAMPP_HOME%\xampp-control.exe -config %OPENSSL_CONF% ^
--key %TMP_PATH%\%PROJNAME%-server.key -out %TMP_PATH%\%PROJNAME%-server.crt
+"%OPENSSL_PATH%" genrsa -rand "%XAMPP_HOME%\xampp-control.exe" ^
+-out "%TMP_PATH%\%PROJNAME%-server.key" 1024
+"%OPENSSL_PATH%" req -new -x509 -days %SSL_CERTIFICATION_DAYS% %SSL_SUBJECT% ^
+-rand "%XAMPP_HOME%\xampp-control.exe" -config "%OPENSSL_CONF%" ^
+-key "%TMP_PATH%\%PROJNAME%-server.key" -out "%TMP_PATH%\%PROJNAME%-server.crt"
 
-Rem Move the OpenSSL key and cert to Apache config directory.
-If Not Exist %APACHE_CONF_PATH%\ssl.crt Mkdir %APACHE_CONF_PATH%\ssl.crt
-If Not Exist %APACHE_CONF_PATH%\ssl.key Mkdir %APACHE_CONF_PATH%\ssl.key
-Move /y %TMP_PATH%\%PROJNAME%-server.crt %APACHE_CONF_PATH%\ssl.crt
-Move /y %TMP_PATH%\%PROJNAME%-server.key %APACHE_CONF_PATH%\ssl.key
+Rem Move the OpenSSL key and cert to Apache config folder.
+If Not Exist "%APACHE_CONF_PATH%\ssl.crt" Mkdir "%APACHE_CONF_PATH%\ssl.crt"
+If Not Exist "%APACHE_CONF_PATH%\ssl.key" Mkdir "%APACHE_CONF_PATH%\ssl.key"
+Move /y "%TMP_PATH%\%PROJNAME%-server.crt" "%APACHE_CONF_PATH%\ssl.crt"
+Move /y "%TMP_PATH%\%PROJNAME%-server.key" "%APACHE_CONF_PATH%\ssl.key"
 
 Rem Add the project's virtual host ssl config to the httpd-vhosts.conf file.
 Set APACHE_CONF_PATH2=%APACHE_CONF_PATH:\=/%
