@@ -120,6 +120,10 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
    * MYSQL_DBNAME_SUFFIX  
    データベースの名前の接尾辞を指定します。  
    例)_db
+   
+   * MYSQL_DEFAULT_CHARACTER_SET  
+   データベースの文字コードを指定します。  
+   例)utf8
 
 ###Git環境変数
    

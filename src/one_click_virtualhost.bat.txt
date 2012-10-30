@@ -1,6 +1,6 @@
 Echo off
 
-Rem One Click VirtualHost v1.1.0
+Rem One Click VirtualHost v1.1.1
 Rem 
 Rem Copyright 2012, Kaoru Ishikura
 Rem Dual licensed under the MIT or GPL Version 2 licenses.
@@ -36,6 +36,7 @@ Set MYSQL_MYSQLADMIN_PATH=
 Set MYSQL_ROOT_PASSWORD=
 Set MYSQL_DBNAME_PREFIX=
 Set MYSQL_DBNAME_SUFFIX=_db
+Set MYSQL_DEFAULT_CHARACTER_SET=utf8
 Rem ##############################################
 
 Rem Git environment variables.
@@ -120,6 +121,7 @@ If Defined CHECK_MYSQL_CREATE_DB Set CHECK_MYSQL_CREATE_DB=%CHECK_MYSQL_CREATE_D
 If /i Not "%CHECK_MYSQL_CREATE_DB%" == "y" Goto skip_mysql
 
 "%MYSQL_MYSQLADMIN_PATH%" -uroot -p%MYSQL_ROOT_PASSWORD% ^
+--default-character-set=%MYSQL_DEFAULT_CHARACTER_SET% ^
 create %MYSQL_DBNAME_PREFIX%%PROJNAME:-=_%%MYSQL_DBNAME_SUFFIX%
 
 :skip_mysql
