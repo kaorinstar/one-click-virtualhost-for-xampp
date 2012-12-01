@@ -1,46 +1,69 @@
 Echo off
 
-Rem One Click VirtualHost v1.1.1
+Rem One Click VirtualHost v1.1.2
 Rem 
 Rem Copyright 2012, Kaoru Ishikura
 Rem Dual licensed under the MIT or GPL Version 2 licenses.
 
 Rem Project environment variables.
 Rem ##############################################
+Rem Set the XAMPP folder path.
 Set XAMPP_HOME=C:\local\xampp
+Rem Set the document root folder path.
 Set DOCUMENT_ROOT_PATH=C:\home\username
+Rem Set the web root folder path.
 Set WEB_ROOT_PATH=src
+Rem Set the Windows hosts file path.
 Set HOSTS_FILE_PATH=C:\Windows\system32\drivers\etc\hosts
+Rem Set the top level domain.
 Set TOP_LEVEL_DOMAIN=ocv
+Rem Set the Apache service name.
 Set APACHE_SVC_NAME=apache2.2
 Rem ##############################################
 
 Rem SSL environment variables.
 Rem ##############################################
+Rem Set the Open SSL config file path.
 Set OPENSSL_CONF=%XAMPP_HOME%\php\extras\openssl\openssl.cnf
+Rem Set the config folder path in Apache folder.
 Set APACHE_CONF_PATH=%XAMPP_HOME%\apache\conf
+Rem Set the Open SSL folder path in Apache folder.
 Set OPENSSL_PATH=%XAMPP_HOME%\apache\bin\openssl
+Rem Set the temporary folder path.
 Set TMP_PATH=%XAMPP_HOME%\tmp
+Rem Set certification days.
 Set SSL_CERTIFICATION_DAYS=3650
+Rem Set your country name.
 Set SSL_COUNTRY_NAME=JP
+Rem Set your state or province name.
 Set SSL_STATE_OR_PROVINCE_NAME=Osaka
+Rem Set your locality name.
 Set SSL_LOCALITY_NAME=Osaka
+Rem Set your organization name.
 Set SSL_ORGANIZATION_NAME=kaorinstar.com
+Rem Set your organizational unit name.
 Set SSL_ORGANIZATIONAL_UNIT_NAME=
+Rem Set your email address.
 Set SSL_EMAIL_ADDRESS=noreply@kaorinstar.com
 Rem ##############################################
 
 Rem MySQL environment variables.
 Rem ##############################################
+Rem Specify the path to the mysqladmin.exe file.
 Set MYSQL_MYSQLADMIN_PATH=
+Rem Set the root password.
 Set MYSQL_ROOT_PASSWORD=
+Rem Set the database name prefix.
 Set MYSQL_DBNAME_PREFIX=
+Rem Set the database name suffix.
 Set MYSQL_DBNAME_SUFFIX=_db
+Rem Set the default character set.
 Set MYSQL_DEFAULT_CHARACTER_SET=utf8
 Rem ##############################################
 
 Rem Git environment variables.
 Rem ##############################################
+Rem Specify the path to the git.exe file.
 Set GIT_PATH=
 Rem ##############################################
 
@@ -80,8 +103,8 @@ Set /p WEB_ROOT_PATH=公開フォルダーのパスを入力してください。：
 Rem Add the project name to the hosts file.
 If Not Exist "%HOSTS_FILE_PATH%.bak" Copy "%HOSTS_FILE_PATH%" "%HOSTS_FILE_PATH%.bak"
 Set MY_DOMAIN=%PROJNAME%.%TOP_LEVEL_DOMAIN%
-Echo;>>%HOSTS_FILE_PATH%
-Echo 127.0.0.1     %MY_DOMAIN%>>%HOSTS_FILE_PATH%
+Echo;>>"%HOSTS_FILE_PATH%"
+Echo 127.0.0.1     %MY_DOMAIN%>>"%HOSTS_FILE_PATH%"
 
 Rem Add the project's virtual host config to the httpd-vhosts.conf file.
 Set VH_PATH=%XAMPP_HOME%\apache\conf\extra\httpd-vhosts.conf
@@ -91,27 +114,27 @@ If "%WEB_ROOT_PATH%" == "" (
     Set WEB_ROOT_FULL_PATH=%PROJ_ROOT_PATH:\=/%/%WEB_ROOT_PATH:\=/%
 )
 Set WEB_ROOT_FULL_PATH=%WEB_ROOT_FULL_PATH://=/%
-Echo;>>%VH_PATH%
-Echo #>>%VH_PATH%
-Echo # Begin %MY_DOMAIN% config.>>%VH_PATH%
-Echo #>>%VH_PATH%
-Echo ^<VirtualHost *:80^>>>%VH_PATH%
-Echo     DocumentRoot "%WEB_ROOT_FULL_PATH%">>%VH_PATH%
-Echo     ServerName %MY_DOMAIN%>>%VH_PATH%
-Echo     ErrorLog "logs/%PROJNAME%-error.log">>%VH_PATH%
-Echo     CustomLog "logs/%PROJNAME%-access.log" combined>>%VH_PATH%
-Echo     ^<Directory "%WEB_ROOT_FULL_PATH%"^>>>%VH_PATH%
-Echo         Options FollowSymLinks Includes ExecCGI>>%VH_PATH%
-Echo         AllowOverride All>>%VH_PATH%
-Echo         Order deny,allow>>%VH_PATH%
-Echo         Deny from all>>%VH_PATH%
-Echo         Allow from localhost 127.0.0.1>>%VH_PATH%
-Echo     ^</Directory^>>>%VH_PATH%
-Echo ^</VirtualHost^>>>%VH_PATH%
+Echo;>>"%VH_PATH%"
+Echo #>>"%VH_PATH%"
+Echo # Begin %MY_DOMAIN% config.>>"%VH_PATH%"
+Echo #>>"%VH_PATH%"
+Echo ^<VirtualHost *:80^>>>"%VH_PATH%"
+Echo     DocumentRoot "%WEB_ROOT_FULL_PATH%">>"%VH_PATH%"
+Echo     ServerName %MY_DOMAIN%>>"%VH_PATH%"
+Echo     ErrorLog "logs/%PROJNAME%-error.log">>"%VH_PATH%"
+Echo     CustomLog "logs/%PROJNAME%-access.log" combined>>"%VH_PATH%"
+Echo     ^<Directory "%WEB_ROOT_FULL_PATH%"^>>>"%VH_PATH%"
+Echo         Options FollowSymLinks Includes ExecCGI>>"%VH_PATH%"
+Echo         AllowOverride All>>"%VH_PATH%"
+Echo         Order deny,allow>>"%VH_PATH%"
+Echo         Deny from all>>"%VH_PATH%"
+Echo         Allow from localhost 127.0.0.1>>"%VH_PATH%"
+Echo     ^</Directory^>>>"%VH_PATH%"
+Echo ^</VirtualHost^>>>"%VH_PATH%"
 Call :sub_gen_ssl
-Echo #>>%VH_PATH%
-Echo # End %MY_DOMAIN% config.>>%VH_PATH%
-Echo #>>%VH_PATH%
+Echo #>>"%VH_PATH%"
+Echo # End %MY_DOMAIN% config.>>"%VH_PATH%"
+Echo #>>"%VH_PATH%"
 
 Rem Create a database for MySQL.
 If "%MYSQL_MYSQLADMIN_PATH%" == "" Goto skip_mysql
@@ -209,35 +232,35 @@ Move /y "%TMP_PATH%\%PROJNAME%-server.key" "%APACHE_CONF_PATH%\ssl.key"
 
 Rem Add the project's virtual host ssl config to the httpd-vhosts.conf file.
 Set APACHE_CONF_PATH2=%APACHE_CONF_PATH:\=/%
-Echo ^<IfModule ssl_module^>>>%VH_PATH%
-Echo     ^<VirtualHost *:443^>>>%VH_PATH%
-Echo         DocumentRoot "%WEB_ROOT_FULL_PATH%">>%VH_PATH%
-Echo         ServerName %MY_DOMAIN%:443>>%VH_PATH%
-Echo         ErrorLog "logs/%PROJNAME%-ssl-error.log">>%VH_PATH%
-Echo         CustomLog "logs/%PROJNAME%-ssl-access.log" combined>>%VH_PATH%
-Echo         SSLEngine on>>%VH_PATH%
-Echo         SSLProtocol all -SSLv2>>%VH_PATH%
-Echo         SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL>>%VH_PATH%
-Echo         SSLCertificateFile "%APACHE_CONF_PATH2%/ssl.crt/%PROJNAME%-server.crt">>%VH_PATH%
-Echo         SSLCertificateKeyFile "%APACHE_CONF_PATH2%/ssl.key/%PROJNAME%-server.key">>%VH_PATH%
-Echo         BrowserMatch "MSIE [2-6]" \>>%VH_PATH%
-Echo             nokeepalive ssl-unclean-shutdown \>>%VH_PATH%
-Echo             downgrade-1.0 force-response-1.0>>%VH_PATH%
-Echo         # MSIE 7 and newer should be able to use keepalive>>%VH_PATH%
-Echo         BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown>>%VH_PATH%
-Echo         ^<Directory "%WEB_ROOT_FULL_PATH%"^>>>%VH_PATH%
-Echo             SSLRequireSSL>>%VH_PATH%
-Echo             Options FollowSymLinks Includes ExecCGI>>%VH_PATH%
-Echo             AllowOverride All>>%VH_PATH%
-Echo             Order deny,allow>>%VH_PATH%
-Echo             Deny from all>>%VH_PATH%
-Echo             Allow from localhost 127.0.0.1>>%VH_PATH%
-Echo             ^<FilesMatch "\.^(cgi^|shtml^|pl^|asp^|php^)$"^>>>%VH_PATH%
-Echo                 SSLOptions +StdEnvVars>>%VH_PATH%
-Echo             ^</FilesMatch^>>>%VH_PATH%
-Echo         ^</Directory^>>>%VH_PATH%
-Echo     ^</VirtualHost^>>>%VH_PATH%
-Echo ^</IfModule^>>>%VH_PATH%
+Echo ^<IfModule ssl_module^>>>"%VH_PATH%"
+Echo     ^<VirtualHost *:443^>>>"%VH_PATH%"
+Echo         DocumentRoot "%WEB_ROOT_FULL_PATH%">>"%VH_PATH%"
+Echo         ServerName %MY_DOMAIN%:443>>"%VH_PATH%"
+Echo         ErrorLog "logs/%PROJNAME%-ssl-error.log">>"%VH_PATH%"
+Echo         CustomLog "logs/%PROJNAME%-ssl-access.log" combined>>"%VH_PATH%"
+Echo         SSLEngine on>>"%VH_PATH%"
+Echo         SSLProtocol all -SSLv2>>"%VH_PATH%"
+Echo         SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL>>"%VH_PATH%"
+Echo         SSLCertificateFile "%APACHE_CONF_PATH2%/ssl.crt/%PROJNAME%-server.crt">>"%VH_PATH%"
+Echo         SSLCertificateKeyFile "%APACHE_CONF_PATH2%/ssl.key/%PROJNAME%-server.key">>"%VH_PATH%"
+Echo         BrowserMatch "MSIE [2-6]" \>>"%VH_PATH%"
+Echo             nokeepalive ssl-unclean-shutdown \>>"%VH_PATH%"
+Echo             downgrade-1.0 force-response-1.0>>"%VH_PATH%"
+Echo         # MSIE 7 and newer should be able to use keepalive>>"%VH_PATH%"
+Echo         BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown>>"%VH_PATH%"
+Echo         ^<Directory "%WEB_ROOT_FULL_PATH%"^>>>"%VH_PATH%"
+Echo             SSLRequireSSL>>"%VH_PATH%"
+Echo             Options FollowSymLinks Includes ExecCGI>>"%VH_PATH%"
+Echo             AllowOverride All>>"%VH_PATH%"
+Echo             Order deny,allow>>"%VH_PATH%"
+Echo             Deny from all>>"%VH_PATH%"
+Echo             Allow from localhost 127.0.0.1>>"%VH_PATH%"
+Echo             ^<FilesMatch "\.^(cgi^|shtml^|pl^|asp^|php^)$"^>>>"%VH_PATH%"
+Echo                 SSLOptions +StdEnvVars>>"%VH_PATH%"
+Echo             ^</FilesMatch^>>>"%VH_PATH%"
+Echo         ^</Directory^>>>"%VH_PATH%"
+Echo     ^</VirtualHost^>>>"%VH_PATH%"
+Echo ^</IfModule^>>>"%VH_PATH%"
 
 Goto :EOF
 
