@@ -1,6 +1,6 @@
 Echo off
 
-Rem One Click VirtualHost v1.1.2
+Rem One Click VirtualHost v1.1.4
 Rem 
 Rem Copyright 2012, Kaoru Ishikura
 Rem Dual licensed under the MIT or GPL Version 2 licenses.
