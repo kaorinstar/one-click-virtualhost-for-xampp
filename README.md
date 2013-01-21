@@ -1,6 +1,6 @@
-#one-click-virtualhost
+#one-click-virtualhost-for-xampp
 
-One Click Virtualhost for Windowsは、  
+One Click Virtualhost for XAMPPは、  
 XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです。
 
 ## 目次
@@ -28,7 +28,7 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
 3. ファイルをメモ帳または、任意のテキストエディターで開き、  
    設定を自身の環境に合わせて変更し、保存します。(設定については、「4. 設定」を参照) 
 
-4. ファイル名の.txt部分を削除します。(one_click_virtualhost.bat)
+4. ファイル名の.txt部分を削除します。(例：one_click_virtualhost.bat)
 
 ## 3. アンインストール
 1. 「one_click_virtualhost.bat」ファイルを削除します。  
@@ -137,7 +137,9 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
 ## 5. 使い方
 ###新規プロジェクトの作成
    1. 「one_click_virtualhost.bat」ファイルをダブルクリックして実行します。  
-      (コマンドプロンプトが起動します)
+      (コマンドプロンプトが起動します)  
+      ※Windows Vista以降で「ユーザー・アカウント制御（UAC）」を有効にしている場合は、  
+        右クリックでメニューを開き、「管理者として実行」をクリックして実行します。
 
    2. プロジェクト名を尋ねられるので、お好きなプロジェクト名を入力します。  
       ※半角英数字（a～z、0～9）とハイフン（-）で入力してください。  
@@ -153,7 +155,7 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
 ```
 
      「y」と入力した場合はプロジェクト名以下のパスを入力します。  
-      ※開始と終了には、区切り文字( \ )は必要ありません。  
+      ※開始と終了には、区切り文字（ \ ）は必要ありません。  
       例)src\public_html
 
    4. SSLを設定するか尋ねられるので、  
