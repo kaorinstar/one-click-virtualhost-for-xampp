@@ -18,7 +18,8 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
    Apacheの「httpd-vhosts.conf」ファイルを変更します。
 2. プロジェクトに関連するフォルダーまたは、ファイルを作成します。
 3. MySQL環境変数を設定した場合は、データベースを作成します。
-4. Git環境変数を設定した場合は、Gitのリポジトリーを作成します。
+4. PostgreSQL環境変数を設定した場合は、データベースを作成します。
+5. Git環境変数を設定した場合は、Gitのリポジトリーを作成します。
 
 ## 2. インストール
 1. ダウンロードします。
@@ -128,6 +129,32 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
    データベースの文字コードを指定します。  
    例)utf8
 
+###PostgreSQL環境変数
+   
+   * PGSQL_CREATEDB_PATH  
+   createdbの実行ファイルのパスを指定します。  
+   例)%XAMPP_HOME%\pgsql\bin\createdb
+   
+   * PGSQL_POSTGRES_PASSWORD  
+   postgresのパスワードを指定します。  
+   例)password
+   
+   * PGSQL_OWNER  
+   データベースのオーナーを指定します。  
+   例)owner
+   
+   * PGSQL_DBNAME_PREFIX  
+   データベースの名前の接頭辞を指定します。  
+   例)my_
+   
+   * PGSQL_DBNAME_SUFFIX  
+   データベースの名前の接尾辞を指定します。  
+   例)_db
+   
+   * PGSQL_ENCODING  
+   データベースの文字コードを指定します。  
+   例)UTF8
+
 ###Git環境変数
    
    * GIT_PATH  
@@ -166,17 +193,21 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
       作成する場合は「y」、作成しない場合は「n」を入力して、  
       エンターキーを押します。
 
-   5. Gitのリポジトリーを作成するか尋ねられるので、  
+   6. PostgreSQLのデータベースを作成するか尋ねられるので、  
+      作成する場合は「y」、作成しない場合は「n」を入力して、  
+      エンターキーを押します。
+
+   7. Gitのリポジトリーを作成するか尋ねられるので、  
       作成する場合は「y」、作成しない場合は「n」を入力して、  
       エンターキーを押します。  
       ※Gitを予めインストールしておく必要があります。
 
-   6. Apacheを再起動します。  
+   8. Apacheを再起動します。  
       ※サービスに登録している場合は、自動的に再起動します。
 
-   7. キーボードの何かのキーを押すとコマンドプロンプトが閉じます。
+   9. キーボードの何かのキーを押すとコマンドプロンプトが閉じます。
 
-   8. 完了です。
+   10. 完了です。
 
 ###プロジェクトを削除する
    1. Apacheの「httpd-vhosts.conf」ファイルをメモ帳か、  
@@ -234,14 +265,23 @@ C:\Windows\System32\drivers\etc\hosts
 %DOCUMENT_ROOT_PATH%\プロジェクト名
 ```
 
-   10. phpMyAdminにアクセスして、プロジェクトのデータベースを削除します。
+   10. MySQLのデータベースを作成している場合は、  
+       phpMyAdminにアクセスして、プロジェクトのデータベースを削除します。
 
       「phpMyAdmin」のデフォルトのURL：  
 ```
 http://localhost/phpmyadmin/
 ```
 
-   11. 完了です。
+   11. PostgreSQLのデータベースを作成している場合は、  
+       phpPgAdminにアクセスして、プロジェクトのデータベースを削除します。
+
+      「phpPgAdmin」のデフォルトのURL：  
+```
+http://localhost/phppgadmin/
+```
+
+   12. 完了です。
 
 ## 6. ライセンス
 Copyright &copy; 2012 Kaoru Ishikura.  

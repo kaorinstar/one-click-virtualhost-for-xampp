@@ -8,7 +8,7 @@ Rem Dual licensed under the MIT or GPL Version 2 licenses.
 Rem Project environment variables.
 Rem ##############################################
 Rem Set the XAMPP folder path.
-Set XAMPP_HOME=C:\local\xampp
+Set XAMPP_HOME=C:\usr\xampp
 Rem Set the document root folder path.
 Set DOCUMENT_ROOT_PATH=C:\home\username
 Rem Set the web root folder path.
@@ -59,6 +59,22 @@ Rem Set the database name suffix.
 Set MYSQL_DBNAME_SUFFIX=_db
 Rem Set the default character set.
 Set MYSQL_DEFAULT_CHARACTER_SET=utf8
+Rem ##############################################
+
+Rem PostgreSQL environment variables.
+Rem ##############################################
+Rem Specify the path to the createdb.exe file.
+Set PGSQL_CREATEDB_PATH=
+Rem Set the postgres password.
+Set PGSQL_POSTGRES_PASSWORD=
+Rem Set the database owner.
+Set PGSQL_OWNER=
+Rem Set the database name prefix.
+Set PGSQL_DBNAME_PREFIX=
+Rem Set the database name suffix.
+Set PGSQL_DBNAME_SUFFIX=_db
+Rem Set the character encoding.
+Set PGSQL_ENCODING=UTF8
 Rem ##############################################
 
 Rem Git environment variables.
@@ -150,6 +166,21 @@ Set MYSQL_DBNAME=%MYSQL_DBNAME:.=_%
 --default-character-set=%MYSQL_DEFAULT_CHARACTER_SET% create %MYSQL_DBNAME%
 
 :skip_mysql
+
+Rem Create a database for PostgreSQL.
+If Exist "%PGSQL_CREATEDB_PATH%" Goto skip_pgsql
+Echo;
+Set /p CHECK_PGSQL_CREATE_DB=PostgreSQLのデータベースを作成しますか。（y/n）：
+If Defined CHECK_PGSQL_CREATE_DB Set CHECK_PGSQL_CREATE_DB=%CHECK_PGSQL_CREATE_DB:"=%
+If /i Not "%CHECK_PGSQL_CREATE_DB%" == "y" Goto skip_pgsql
+
+Set PGSQL_DBNAME=%PGSQL_DBNAME_PREFIX%%PROJNAME%%PGSQL_DBNAME_SUFFIX%
+Set PGSQL_DBNAME=%PGSQL_DBNAME:-=_%
+Set PGSQL_DBNAME=%PGSQL_DBNAME:.=_%
+Set PGPASSWORD=%PGSQL_POSTGRES_PASSWORD%
+"%PGSQL_CREATEDB_PATH%" -U postgres -O %PGSQL_OWNER% -E %PGSQL_ENCODING% -w %PGSQL_DBNAME%
+
+:skip_pgsql
 
 Rem Create a repository for Git.
 If Exist "%GIT_PATH%" Goto skip_git
