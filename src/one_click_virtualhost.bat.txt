@@ -194,6 +194,13 @@ Cd /d "%PROJ_ROOT_PATH%"
 "%GIT_PATH%" init
 Cd /d "%~dp0"
 
+Rem Create a gitignore file.
+Set GIT_GITIGNORE_PATH=%PROJ_ROOT_PATH%\.gitignore
+Echo # Ignore folders and files>"%GIT_GITIGNORE_PATH%"
+Echo;>>"%GIT_GITIGNORE_PATH%"
+Echo # Not ignore folders and files>>"%GIT_GITIGNORE_PATH%"
+Echo !.gitkeep>>"%GIT_GITIGNORE_PATH%"
+
 :skip_git
 
 Rem Make the web root folder.
