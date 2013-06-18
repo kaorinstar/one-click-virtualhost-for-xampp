@@ -194,6 +194,15 @@ Cd /d "%PROJ_ROOT_PATH%"
 "%GIT_PATH%" init
 Cd /d "%~dp0"
 
+Rem Create a gitattributes file.
+Set GIT_GITATTRIBUTES_PATH=%PROJ_ROOT_PATH%\.gitattributes
+Echo ignore_target_file merge=ours>"%GIT_GITATTRIBUTES_PATH%"
+Set GIT_CONFIG_PATH=%PROJ_ROOT_PATH%\.git\config
+Echo [merge "ours"]>>"%GIT_CONFIG_PATH%"
+Echo 	name = Keep ours merge>>"%GIT_CONFIG_PATH%"
+Echo 	driver = true>>"%GIT_CONFIG_PATH%"
+Echo;>>"%GIT_CONFIG_PATH%"
+
 Rem Create a gitignore file.
 Set GIT_GITIGNORE_PATH=%PROJ_ROOT_PATH%\.gitignore
 Echo # Ignore folders and files>"%GIT_GITIGNORE_PATH%"
