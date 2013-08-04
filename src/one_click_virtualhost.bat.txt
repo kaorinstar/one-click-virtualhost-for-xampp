@@ -1,6 +1,6 @@
 Echo off
 
-Rem One Click VirtualHost v1.1.4
+Rem One Click VirtualHost v1.2.4
 Rem 
 Rem Copyright 2012, Kaoru Ishikura
 Rem Dual licensed under the MIT or GPL Version 2 licenses.
@@ -91,7 +91,7 @@ If Not "%1" == "" Goto skip_input1
 Rem Input the project name.
 Echo;
 Echo プロジェクト名を入力してください。
-Echo (※プロジェクト名は半角英数字（a～z、0～9）とハイフン（-）で入力してください)
+Echo (※プロジェクト名は半角英数字（a～z、0～9）とハイフン（-）とドット（.）で入力してください)
 
 Set /p PROJNAME=プロジェクト名：
 
@@ -159,11 +159,21 @@ Set /p CHECK_MYSQL_CREATE_DB=MySQLのデータベースを作成しますか。（y/n）：
 If Defined CHECK_MYSQL_CREATE_DB Set CHECK_MYSQL_CREATE_DB=%CHECK_MYSQL_CREATE_DB:"=%
 If /i Not "%CHECK_MYSQL_CREATE_DB%" == "y" Goto skip_mysql
 
+Echo;
+Echo データベース名を入力してください。
+Echo (※入力がない場合はプロジェクト名になります）
+
+Set /p MYSQL_DBNAME=データベース名：
+If Defined MYSQL_DBNAME Goto run_mysql
+
 Set MYSQL_DBNAME=%MYSQL_DBNAME_PREFIX%%PROJNAME%%MYSQL_DBNAME_SUFFIX%
 Set MYSQL_DBNAME=%MYSQL_DBNAME:-=_%
 Set MYSQL_DBNAME=%MYSQL_DBNAME:.=_%
-"%MYSQL_MYSQLADMIN_PATH%" -uroot -p%MYSQL_ROOT_PASSWORD% ^
---default-character-set=%MYSQL_DEFAULT_CHARACTER_SET% create %MYSQL_DBNAME%
+
+:run_mysql
+
+"%MYSQL_MYSQLADMIN_PATH%" -uroot -p"%MYSQL_ROOT_PASSWORD%" ^
+--default-character-set="%MYSQL_DEFAULT_CHARACTER_SET%" create "%MYSQL_DBNAME%"
 
 :skip_mysql
 
@@ -174,11 +184,21 @@ Set /p CHECK_PGSQL_CREATE_DB=PostgreSQLのデータベースを作成しますか。（y/n）：
 If Defined CHECK_PGSQL_CREATE_DB Set CHECK_PGSQL_CREATE_DB=%CHECK_PGSQL_CREATE_DB:"=%
 If /i Not "%CHECK_PGSQL_CREATE_DB%" == "y" Goto skip_pgsql
 
+Echo;
+Echo データベース名を入力してください。
+Echo (※入力がない場合はプロジェクト名になります）
+
+Set /p PGSQL_DBNAME=データベース名：
+If Defined PGSQL_DBNAME Goto run_pgsql
+
 Set PGSQL_DBNAME=%PGSQL_DBNAME_PREFIX%%PROJNAME%%PGSQL_DBNAME_SUFFIX%
 Set PGSQL_DBNAME=%PGSQL_DBNAME:-=_%
 Set PGSQL_DBNAME=%PGSQL_DBNAME:.=_%
+
+:run_pgsql
+
 Set PGPASSWORD=%PGSQL_POSTGRES_PASSWORD%
-"%PGSQL_CREATEDB_PATH%" -U postgres -O %PGSQL_OWNER% -E %PGSQL_ENCODING% -w %PGSQL_DBNAME%
+"%PGSQL_CREATEDB_PATH%" -U postgres -O "%PGSQL_OWNER%" -E "%PGSQL_ENCODING%" -w "%PGSQL_DBNAME%"
 
 :skip_pgsql
 
