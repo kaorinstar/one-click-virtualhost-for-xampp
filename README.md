@@ -1,15 +1,17 @@
-#one-click-virtualhost-for-xampp
+#One Click Virtualhost for XAMPP
 
 One Click Virtualhost for XAMPPは、  
 XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです。
 
 ## 目次
-1. 注意
-2. インストール
-3. アンインストール
-4. 設定
-5. 使い方
-6. ライセンス
+[1. 注意](#1-注意)  
+[2. インストール](#2-インストール)  
+[3. アンインストール](#3-アンインストール)  
+[4. 設定](#4-設定)  
+[5. 使い方](#5-使い方)  
+[6. 開発環境](#6-開発環境)  
+[7. 謝辞](#7-謝辞)  
+[8. 著作権とライセンス](#8-著作権とライセンス)
 
 ## 1. 注意
 このプログラムは、以下の動作をします。
@@ -19,21 +21,23 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
 2. プロジェクトに関連するフォルダーまたは、ファイルを作成します。
 3. MySQL環境変数を設定した場合は、データベースを作成します。
 4. PostgreSQL環境変数を設定した場合は、データベースを作成します。
-5. Git環境変数を設定した場合は、Gitのリポジトリーを作成します。
+5. Git環境変数を設定した場合は、Gitリポジトリーを作成します。
 
 ## 2. インストール
 1. ダウンロードします。
 
-2. 「one_click_virtualhost.bat.txt」ファイルを任意のフォルダーに設置します。
+2. 「one_click_virtualhost_ja.bat.txt」ファイルを任意のフォルダーに設置します。
 
 3. ファイルをメモ帳または、任意のテキストエディターで開き、  
-   設定を自身の環境に合わせて変更し、保存します。(設定については、「4. 設定」を参照) 
+   設定を自身の環境に合わせて変更し、保存します。  
+   （設定については、「[4. 設定](#4-設定)」を参照してください。) 
 
-4. ファイル名の.txt部分を削除します。(例：one_click_virtualhost.bat)
+4. ファイル名の.txt部分を削除します。  
+   （例：one_click_virtualhost_ja.bat) 
 
 ## 3. アンインストール
-1. 「one_click_virtualhost.bat」ファイルを削除します。  
-   ※各プロジェクトを削除する方法は、「5. 使い方 > ・プロジェクトを削除する」を参照してください。
+1. 「one_click_virtualhost_ja.bat」ファイルを削除します。  
+   ※各プロジェクトを削除する方法は、「5. 使い方 > [プロジェクトを削除する](#プロジェクトを削除する)」を参照してください。
 
 ## 4. 設定
 ###プロジェクト環境変数
@@ -84,7 +88,7 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
    例)3650
    
    * SSL_COUNTRY_NAME  
-   組織の[国名コード][ISO_3166-1]を指定します。  
+   組織の[国名コード](http://ja.wikipedia.org/wiki/ISO_3166-1_alpha-2)を指定します。  
    例)JP
    
    * SSL_STATE_OR_PROVINCE_NAME  
@@ -158,12 +162,12 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
 ###Git環境変数
    
    * GIT_PATH  
-   gitの実行ファイルのパスを指定します。  
+   Gitの実行ファイルのパスを指定します。  
    例)C:\Program Files\Git\bin\git
 
 ## 5. 使い方
 ###新規プロジェクトの作成
-   1. 「one_click_virtualhost.bat」ファイルをダブルクリックして実行します。  
+   1. 「one_click_virtualhost_ja.bat」ファイルをダブルクリックして実行します。  
       (コマンドプロンプトが起動します)  
       ※Windows Vista以降で「ユーザー・アカウント制御（UAC）」を有効にしている場合は、  
         右クリックでメニューを開き、「管理者として実行」をクリックして実行します。
@@ -203,7 +207,7 @@ XAMPPでVirtualHostの設定を簡単に行う為のバッチファイルです�
       お好きなデータベース名を入力します。  
       ※入力がない場合はプロジェクト名になります。
 
-   7. Gitのリポジトリーを作成するか尋ねられるので、  
+   7. Gitリポジトリーを作成するか尋ねられるので、  
       作成する場合は「y」、作成しない場合は「n」を入力して、  
       エンターキーを押します。  
       ※Gitを予めインストールしておく必要があります。
@@ -289,10 +293,13 @@ http://localhost/phppgadmin/
 
    12. 完了です。
 
-## 6. ライセンス
-Copyright &copy; 2012 Kaoru Ishikura.  
-Dual licensed under the [MIT license][MIT] and [GPL license][GPL].
+## 6. 開発環境
+* プログラムのソースは、 [GitHub](https://github.com/kaorinstar/one-click-virtualhost-for-xampp) にホストされています。 
+* プログラムの問題・質問・機能要求は、 [GitHub Issues](https://github.com/kaorinstar/one-click-virtualhost-for-xampp/issues) へご投稿ください。
 
-[ISO_3166-1]: http://ja.wikipedia.org/wiki/ISO_3166-1_alpha-2
-[MIT]: http://www.opensource.org/licenses/mit-license.php
-[GPL]: http://www.gnu.org/licenses/gpl.html
+## 7. 謝辞
+インスピレーションを与えていただいた、多くのブロガーに感謝します。
+
+## 8. 著作権とライセンス
+Copyright &copy; 2014 Kaoru Ishikura.  
+[MIT license](https://github.com/kaorinstar/one-click-virtualhost-for-xampp/blob/master/LICENSE) の下にリリースされています。
